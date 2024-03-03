@@ -1,3 +1,4 @@
+use clap::Parser;
 use svg::{node::element::Rectangle, Document};
 
 const COLOR: &str = "#198acd";
@@ -10,6 +11,7 @@ fn rect(x: f64, y: f64, width: f64, height: f64) -> Rectangle {
         .set("height", height)
         .set("fill", COLOR)
         .set("stroke", "none")
+        .set("stroke-width", "0.2")
 }
 
 /// Makes four rectangles on the corners of the given rectangle
@@ -85,7 +87,19 @@ fn add_rectangles(document: Document, rectangle: &Rectangle, depth: usize) -> Do
     document
 }
 
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// The depth to which the fractal should be drawn.
+    #[clap(short, long, default_value = "3")]
+    depth: usize,
+}
+
+
 fn main() {
+    let cli = Cli::parse();
+
     const WIDTH: f64 = 100.0;
     const HEIGHT: f64 = 100.0;
 
@@ -95,7 +109,7 @@ fn main() {
         .set("viewBox", (0, 0, 100, 100))
         .add(main_rectangle.clone());
 
-    let document = add_rectangles(document.clone(), &main_rectangle, 6);
+    let document = add_rectangles(document.clone(), &main_rectangle, cli.depth);
 
     svg::save("t-square.svg", &document).unwrap();
 }
